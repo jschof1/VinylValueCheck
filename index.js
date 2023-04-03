@@ -5,7 +5,8 @@ const apiKey = 'zMYjIWoyvQwxELwSgHFB'; // Replace with your Discogs API key
 const apiSecret = 'rICpSLfRHfePzyaCSJYhYNEYvfXKNXPU'; // Replace with your Discogs API secret
 const searchButton = document.getElementById('searchButton');
 const songList = document.getElementById('songList');
-const results = document.getElementById('results');
+const resultsTable = document.getElementById('resultsTable');
+const tableHeaders = ['Song', 'Master ID', 'Lowest Price'];
 
 async function searchDiscogs(query) {
   const response = await fetch(
@@ -23,31 +24,71 @@ async function getMasterInfo(masterId) {
   return response.json();
 }
 
-async function displayPrices(query, masterInfo) {
-  const listItem = document.createElement('li');
-  listItem.textContent = `${query} - Master ID: ${masterInfo.id} - Lowest price: ${masterInfo.lowest_price}`;
-  results.appendChild(listItem);
+function createTableHeader() {
+  const tableHeader = document.createElement('thead');
+  const row = document.createElement('tr');
+  for (const header of tableHeaders) {
+    const cell = document.createElement('th');
+    cell.textContent = header;
+    row.appendChild(cell);
+  }
+  tableHeader.appendChild(row);
+  return tableHeader;
+}
+
+function createTableRow(song, masterInfo) {
+  const row = document.createElement('tr');
+  const songCell = document.createElement('td');
+  songCell.textContent = song;
+  const masterIdCell = document.createElement('td');
+  masterIdCell.textContent = masterInfo.id;
+  const priceCell = document.createElement('td');
+  priceCell.textContent = masterInfo.lowest_price;
+  row.appendChild(songCell);
+  row.appendChild(masterIdCell);
+  row.appendChild(priceCell);
+  return row;
+}
+
+function clearTable() {
+  const rowCount = resultsTable.rows.length;
+  for (let i = rowCount - 1; i > 0; i--) {
+    resultsTable.deleteRow(i);
+  }
 }
 
 searchButton.addEventListener('click', async () => {
-  results.innerHTML = '';
+  clearTable();
   const songs = songList.value.split('\n');
+  const tableHeader = createTableHeader();
+  resultsTable.appendChild(tableHeader);
   for (const song of songs) {
     const data = await searchDiscogs(song);
     if (data.results && data.results.length > 0) {
       const masterId = data.results[0].master_id;
       if (masterId) {
         const masterInfo = await getMasterInfo(masterId);
-        displayPrices(song, masterInfo);
+        const tableRow = createTableRow(song, masterInfo);
+        resultsTable.appendChild(tableRow);
       } else {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${song} - No master release found`;
-        results.appendChild(listItem);
+        const row = document.createElement('tr');
+        const songCell = document.createElement('td');
+        songCell.textContent = song;
+        const messageCell = document.createElement('td');
+        messageCell.textContent = 'No master release found';
+        row.appendChild(songCell);
+        row.appendChild(messageCell);
+        resultsTable.appendChild(row);
       }
     } else {
-      const listItem = document.createElement('li');
-      listItem.textContent = `${song} - No results found`;
-      results.appendChild(listItem);
+      const row = document.createElement('tr');
+      const songCell = document.createElement('td');
+      songCell.textContent = song;
+      const messageCell = document.createElement('td');
+      messageCell.textContent = 'No results found';
+      row.appendChild(songCell);
+      row.appendChild(messageCell);
+      resultsTable.appendChild(row);
     }
   }
 });

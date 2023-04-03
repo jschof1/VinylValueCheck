@@ -2,5 +2,8 @@
   "name": "js",
   "version": "0.0.0",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "datatables": "^1.10.18",
+    "jquery": "^3.6.4"
+  }
 }
