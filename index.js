@@ -1,47 +1,53 @@
 // Import stylesheets
 import './style.css';
 
-const apiKey = 'your-api-key'; // Replace with your Discogs API key
-const apiSecret = 'your-api-secret'; // Replace with your Discogs API secret
+const apiKey = 'zMYjIWoyvQwxELwSgHFB'; // Replace with your Discogs API key
+const apiSecret = 'rICpSLfRHfePzyaCSJYhYNEYvfXKNXPU'; // Replace with your Discogs API secret
 const searchButton = document.getElementById('searchButton');
 const songList = document.getElementById('songList');
 const results = document.getElementById('results');
 
 async function searchDiscogs(query) {
-  const response = await fetch(`https://api.discogs.com/database/search?q=${encodeURIComponent(query)}&key=${apiKey}&secret=${apiSecret}`);
+  const response = await fetch(
+    `https://api.discogs.com/database/search?q=${encodeURIComponent(
+      query
+    )}&key=${apiKey}&secret=${apiSecret}`
+  );
   return response.json();
 }
 
-async function getPriceSuggestions(releaseId) {
-  const response = await fetch(`https://api.discogs.com/marketplace/price_suggestions/${releaseId}?key=${apiKey}&secret=${apiSecret}`);
+async function getMasterInfo(masterId) {
+  const response = await fetch(
+    `https://api.discogs.com/masters/${masterId}?key=${apiKey}&secret=${apiSecret}`
+  );
   return response.json();
 }
 
-async function displayPrices(data) {
-  results.innerHTML = '';
-  for (const result of data.results) {
-    const listItem = document.createElement('li');
-    listItem.textContent = `${result.title} - ${result.type} - ${result.uri}`;
-
-    if (result.type === 'release') {
-      const priceSuggestions = await getPriceSuggestions(result.id);
-      const priceList = document.createElement('ul');
-      for (const condition in priceSuggestions) {
-        const priceItem = document.createElement('li');
-        priceItem.textContent = `${condition}: ${priceSuggestions[condition].value} ${priceSuggestions[condition].currency}`;
-        priceList.appendChild(priceItem);
-      }
-      listItem.appendChild(priceList);
-    }
-
-    results.appendChild(listItem);
-  }
+async function displayPrices(query, masterInfo) {
+  const listItem = document.createElement('li');
+  listItem.textContent = `${query} - Master ID: ${masterInfo.id} - Lowest price: ${masterInfo.lowest_price}`;
+  results.appendChild(listItem);
 }
 
 searchButton.addEventListener('click', async () => {
+  results.innerHTML = '';
   const songs = songList.value.split('\n');
   for (const song of songs) {
     const data = await searchDiscogs(song);
-    await displayPrices(data);
+    if (data.results && data.results.length > 0) {
+      const masterId = data.results[0].master_id;
+      if (masterId) {
+        const masterInfo = await getMasterInfo(masterId);
+        displayPrices(song, masterInfo);
+      } else {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${song} - No master release found`;
+        results.appendChild(listItem);
+      }
+    } else {
+      const listItem = document.createElement('li');
+      listItem.textContent = `${song} - No results found`;
+      results.appendChild(listItem);
+    }
   }
 });
