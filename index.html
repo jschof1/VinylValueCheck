@@ -1,24 +1,21 @@
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
-/>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.css"
-/>
-
-<script
-  type="text/javascript"
-  charset="utf8"
-  src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.js"
-></script>
-
-<h1>Discogs Price Checker</h1>
-<textarea id="songList" rows="10" cols="50">
-Artist - Song Title
-Artist - Song Title
-...</textarea
->
-<button id="searchButton">Search Prices</button>
-<table id="resultsTable"></table>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vinyl Value Check</title>
+  </head>
+  <body>
+      <h1>Vinyl Value Check</h1>
+      <h2>Enter a list of songs to check their value</h2>
+      <textarea id="songList" rows="10" cols="50">
+      Artist - Song Title
+      Artist - Song Title
+      ...</textarea>
+      <button id="searchButton">Search Prices</button>
+      <table id="resultsTable"></table>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

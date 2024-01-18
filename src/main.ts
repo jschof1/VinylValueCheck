@@ -1,14 +1,13 @@
-// Import stylesheets
-import './style.css';
+import './style.css'
 
-const apiKey = 'zMYjIWoyvQwxELwSgHFB'; // Replace with your Discogs API key
-const apiSecret = 'rICpSLfRHfePzyaCSJYhYNEYvfXKNXPU'; // Replace with your Discogs API secret
+const apiKey = import.meta.env.VITE_KEY; // Replace with your Discogs API key
+const apiSecret = import.meta.env.VITE_SECRET
 const searchButton = document.getElementById('searchButton');
 const songList = document.getElementById('songList');
 const resultsTable = document.getElementById('resultsTable');
 const tableHeaders = ['Song', 'Master ID', 'Lowest Price'];
 
-async function searchDiscogs(query) {
+async function searchDiscogs(query: string) {
   const response = await fetch(
     `https://api.discogs.com/database/search?q=${encodeURIComponent(
       query
@@ -17,7 +16,7 @@ async function searchDiscogs(query) {
   return response.json();
 }
 
-async function getMasterInfo(masterId) {
+async function getMasterInfo(masterId: string) {
   const response = await fetch(
     `https://api.discogs.com/masters/${masterId}?key=${apiKey}&secret=${apiSecret}`
   );
@@ -36,7 +35,7 @@ function createTableHeader() {
   return tableHeader;
 }
 
-function createTableRow(song, masterInfo) {
+function createTableRow(song: string, masterInfo: { id: string; lowest_price: string; }) {
   const row = document.createElement('tr');
   const songCell = document.createElement('td');
   songCell.textContent = song;
@@ -51,17 +50,21 @@ function createTableRow(song, masterInfo) {
 }
 
 function clearTable() {
-  const rowCount = resultsTable.rows.length;
-  for (let i = rowCount - 1; i > 0; i--) {
-    resultsTable.deleteRow(i);
+  if (resultsTable) {
+    const rowCount = (resultsTable as HTMLTableElement).rows.length;
+    for (let i = rowCount - 1; i > 0; i--) {
+      (resultsTable as HTMLTableElement).deleteRow(i);
+    }
   }
 }
 
-searchButton.addEventListener('click', async () => {
+(searchButton as HTMLElement).addEventListener('click', async () => {
   clearTable();
-  const songs = songList.value.split('\n');
+  const songs = (songList as HTMLInputElement).value.split('\n');
   const tableHeader = createTableHeader();
-  resultsTable.appendChild(tableHeader);
+  if (resultsTable) {
+    resultsTable.appendChild(tableHeader);
+  }
   for (const song of songs) {
     const data = await searchDiscogs(song);
     if (data.results && data.results.length > 0) {
@@ -69,7 +72,9 @@ searchButton.addEventListener('click', async () => {
       if (masterId) {
         const masterInfo = await getMasterInfo(masterId);
         const tableRow = createTableRow(song, masterInfo);
-        resultsTable.appendChild(tableRow);
+        if (resultsTable) {
+          resultsTable.appendChild(tableRow);
+        }
       } else {
         const row = document.createElement('tr');
         const songCell = document.createElement('td');
@@ -78,7 +83,9 @@ searchButton.addEventListener('click', async () => {
         messageCell.textContent = 'No master release found';
         row.appendChild(songCell);
         row.appendChild(messageCell);
-        resultsTable.appendChild(row);
+        if (resultsTable) {
+          resultsTable.appendChild(row);
+        }
       }
     } else {
       const row = document.createElement('tr');
@@ -88,7 +95,10 @@ searchButton.addEventListener('click', async () => {
       messageCell.textContent = 'No results found';
       row.appendChild(songCell);
       row.appendChild(messageCell);
-      resultsTable.appendChild(row);
+      if (resultsTable) {
+        resultsTable.appendChild(row);
+      }
     }
   }
 });
+
