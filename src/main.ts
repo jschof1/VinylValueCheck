@@ -42,7 +42,7 @@ function createTableRow(song: string, masterInfo: { id: string; lowest_price: st
   const masterIdCell = document.createElement('td');
   masterIdCell.textContent = masterInfo.id;
   const priceCell = document.createElement('td');
-  priceCell.textContent = masterInfo.lowest_price;
+  priceCell.textContent = '$' + masterInfo.lowest_price;
   row.appendChild(songCell);
   row.appendChild(masterIdCell);
   row.appendChild(priceCell);
